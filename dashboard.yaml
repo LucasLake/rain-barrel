@@ -1,35 +1,35 @@
-# Regenton dashboardkaarten
+# Regenton dashboard cards
 #
-# Plak deze in een Lovelace-view (YAML-modus). Pas entity-ID's aan als
-# je ESPHome-device andere namen kreeg.
+# Paste these into a Lovelace view (YAML mode). Adjust entity IDs if
+# your ESPHome device ended up with different names.
 
 - type: entities
   title: Regenton
   entities:
-    - entity: switch.regenton_magneetventiel
-    - entity: switch.regenton_pomp
-    - entity: binary_sensor.regenton_leeg
-      name: Leeg
-    - entity: sensor.regenton_waterflow
-    - entity: sensor.regenton_esp32_temperatuur
-    - entity: fan.regenton_ventilator
+    - entity: switch.regenton_solenoid_valve
+    - entity: switch.regenton_pump
+    - entity: binary_sensor.regenton_empty
+      name: Empty
+    - entity: sensor.regenton_water_flow
+    - entity: sensor.regenton_esp32_temperature
+    - entity: fan.regenton_fan
     - entity: automation.regenton
-    - entity: sensor.regenton_sync_laatste_run
-      name: Laatste sync-run
-    - entity: sensor.regenton_lekkage_laatste_keer
-      name: Laatste lekkage-noodstop
-    - entity: automation.regenton_lekkage_noodstop
-    - entity: automation.regenton_pomp_en_ventiel_synchroon_houden
+    - entity: sensor.regenton_sync_last_run
+      name: Last sync run
+    - entity: sensor.regenton_leak_last_time
+      name: Last leak emergency stop
+    - entity: automation.regenton_leak_emergency_stop
+    - entity: automation.regenton_keep_pump_and_valve_in_sync
 
 - type: history-graph
-  title: Regenton ESP temperatuur & ventilator
+  title: Regenton ESP temperature & fan
   entities:
-    - entity: sensor.regenton_esp32_temperatuur
-    - entity: fan.regenton_ventilator
+    - entity: sensor.regenton_esp32_temperature
+    - entity: fan.regenton_fan
   hours_to_show: 2
 
 - type: history-graph
-  title: Regenton waterflow - laatste 5 minuten
+  title: Regenton water flow - last 5 minutes
   entities:
-    - entity: sensor.regenton_waterflow
+    - entity: sensor.regenton_water_flow
   hours_to_show: 0.0834

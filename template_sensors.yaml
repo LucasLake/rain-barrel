@@ -1,37 +1,37 @@
-# Regenton template-sensoren
+# Regenton template sensors
 #
-# Voeg deze samen met een eventuele bestaande `template:`-sleutel in je
-# configuration.yaml (YAML staat geen dubbele top-level keys toe — als
-# je al een `template:`-blok hebt, voeg de `sensor:`/`binary_sensor:`-
-# items hieronder toe aan dat bestaande blok in plaats van dit los te
-# plakken).
+# Merge these into an existing `template:` key in your
+# configuration.yaml (YAML doesn't allow duplicate top-level keys — if
+# you already have a `template:` block, add the `sensor:`/
+# `binary_sensor:` items below to that existing block instead of
+# pasting this in separately).
 #
-# De twee timestamp-sensoren verwijzen naar automation-entity-ID's
-# (automation.regenton_pomp_en_ventiel_synchroon_houden en
-# automation.regenton_lekkage_noodstop). Die entity-ID's worden door
-# Home Assistant afgeleid van de `alias` van de automation in
-# automations.yaml — als je de alias aanpast, verandert de entity-ID
-# ook en moet je deze verwijzingen meeveranderen.
+# The two timestamp sensors reference automation entity IDs
+# (automation.regenton_keep_pump_and_valve_in_sync and
+# automation.regenton_leak_emergency_stop). Those entity IDs are
+# derived by Home Assistant from the automation's `alias` in
+# automations.yaml — if you change the alias, the entity ID changes
+# too and you'll need to update these references.
 
 template:
   - sensor:
-      - name: Regenton sync laatste run
+      - name: Regenton Sync Last Run
         device_class: timestamp
         state: >
-          {% set ts = state_attr('automation.regenton_pomp_en_ventiel_synchroon_houden', 'last_triggered') %}
+          {% set ts = state_attr('automation.regenton_keep_pump_and_valve_in_sync', 'last_triggered') %}
           {{ ts.isoformat() if ts else None }}
-      - name: Regenton lekkage laatste keer
+      - name: Regenton Leak Last Time
         device_class: timestamp
         state: >
-          {% set ts = state_attr('automation.regenton_lekkage_noodstop', 'last_triggered') %}
+          {% set ts = state_attr('automation.regenton_leak_emergency_stop', 'last_triggered') %}
           {{ ts.isoformat() if ts else None }}
   - binary_sensor:
-      - name: Regenton leeg
-        unique_id: regenton_leeg
+      - name: Regenton Empty
+        unique_id: regenton_empty
         device_class: problem
-        state: "{{ not is_state('binary_sensor.regenton_vlotter', 'on') }}"
-        availability: "{{ has_value('binary_sensor.regenton_vlotter') }}"
-        # HA kleurt device_class "moisture" (de klasse van de vlotter
-        # zelf) altijd rood bij "aan" (= nat = goed, in dit geval). Deze
-        # sensor is het omgekeerde: aan = leeg = probleem = terecht rood,
-        # uit = vol = terecht neutraal.
+        state: "{{ not is_state('binary_sensor.regenton_float_switch', 'on') }}"
+        availability: "{{ has_value('binary_sensor.regenton_float_switch') }}"
+        # HA always colors device_class "moisture" (the float switch's
+        # own class) red when "on" (= wet = good, in this case). This
+        # sensor is the inverse: on = empty = problem = correctly red,
+        # off = full = correctly neutral.

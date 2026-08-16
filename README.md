@@ -155,10 +155,10 @@ flowing back into the barrel when the pump is off.
    further updates work via OTA (WiFi).
 2. Add the device to Home Assistant via the ESPHome integration
    (auto-discovery via zeroconf, or manually with IP address).
-3. Note the entity names after adding (e.g. `sensor.regenton_waterflow`,
-   `binary_sensor.regenton_vlotter`, `switch.regenton_pomp`,
-   `switch.regenton_magneetventiel`, `fan.regenton_ventilator`,
-   `sensor.regenton_esp32_temperatuur`) — adjust the entity IDs in
+3. Note the entity names after adding (e.g. `sensor.regenton_water_flow`,
+   `binary_sensor.regenton_float_switch`, `switch.regenton_pump`,
+   `switch.regenton_solenoid_valve`, `fan.regenton_fan`,
+   `sensor.regenton_esp32_temperature`) — adjust the entity IDs in
    `automations.yaml` if your names differ.
 4. Copy the contents of [`automations.yaml`](automations.yaml) to your
    own `automations.yaml` (or import individual automations via the UI).
@@ -217,5 +217,5 @@ this, but may vary between sensors — test with a known volume of water.
 
 - [ ] Photos/diagram of the physical setup and wiring
 - [ ] Confirm exact parts list (brand/type per component)
-- [ ] Choose a licence
+- [x] Choose a licence — CC BY-SA 4.0, see [`LICENSE`](LICENSE)
 - [ ] Move to the final GitHub repository once created

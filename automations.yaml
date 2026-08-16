@@ -1,179 +1,181 @@
 # Regenton automations
 #
-# Vervang notify.YOUR_NOTIFY_TARGET overal door je eigen notify-service
-# (bv. notify.mobile_app_telefoon). Pas entity-ID's aan als je ESPHome-
-# device andere namen kreeg dan sensor.regenton_*/switch.regenton_*.
+# Replace notify.YOUR_NOTIFY_TARGET everywhere with your own notify
+# service (e.g. notify.mobile_app_phone). Adjust entity IDs if your
+# ESPHome device ended up with different names than
+# sensor.regenton_*/switch.regenton_*.
 
 - alias: Regenton
   description: >-
-    Kernlogica: schakelt pomp + magneetventiel in zodra er downstream
-    waterflow gedetecteerd wordt (iemand/iets neemt water af) én de
-    regenton niet leeg is. Zet alles weer uit zodra de flow stopt, of
-    direct als de ton tussentijds leegraakt. Stuurt een notificatie bij
-    zowel leeg- als vol-worden van de ton.
+    Core logic: turns on the pump + solenoid valve as soon as downstream
+    water flow is detected (something/someone is drawing water) and the
+    rain barrel is not empty. Turns everything off again once the flow
+    stops, or immediately if the barrel runs dry in the meantime. Sends
+    a notification both when the barrel goes empty and when it becomes
+    full again.
   triggers:
-  - entity_id: sensor.regenton_waterflow
+  - entity_id: sensor.regenton_water_flow
     above: 1
-    id: flow_aan
+    id: flow_on
     trigger: numeric_state
-  - entity_id: sensor.regenton_waterflow
+  - entity_id: sensor.regenton_water_flow
     below: 1
-    id: flow_uit
+    id: flow_off
     trigger: numeric_state
-  - entity_id: binary_sensor.regenton_vlotter
+  - entity_id: binary_sensor.regenton_float_switch
     to: 'off'
-    id: ton_leeg
+    id: barrel_empty
     trigger: state
-  - entity_id: binary_sensor.regenton_vlotter
+  - entity_id: binary_sensor.regenton_float_switch
     to: 'on'
-    id: ton_vol
+    id: barrel_full
     trigger: state
   actions:
   - choose:
     - conditions:
       - condition: trigger
-        id: flow_aan
+        id: flow_on
       - condition: state
-        entity_id: binary_sensor.regenton_vlotter
+        entity_id: binary_sensor.regenton_float_switch
         state: 'on'
       sequence:
       - target:
-          entity_id: switch.regenton_magneetventiel
+          entity_id: switch.regenton_solenoid_valve
         action: switch.turn_on
       - delay: 00:00:02
       - target:
-          entity_id: switch.regenton_pomp
+          entity_id: switch.regenton_pump
         action: switch.turn_on
     - conditions:
       - condition: trigger
-        id: flow_uit
+        id: flow_off
       sequence:
       - target:
-          entity_id: switch.regenton_pomp
+          entity_id: switch.regenton_pump
         action: switch.turn_off
       - target:
-          entity_id: switch.regenton_magneetventiel
+          entity_id: switch.regenton_solenoid_valve
         action: switch.turn_off
     - conditions:
       - condition: trigger
-        id: ton_leeg
+        id: barrel_empty
       sequence:
       - target:
-          entity_id: switch.regenton_pomp
+          entity_id: switch.regenton_pump
         action: switch.turn_off
       - target:
-          entity_id: switch.regenton_magneetventiel
+          entity_id: switch.regenton_solenoid_valve
         action: switch.turn_off
       - action: notify.YOUR_NOTIFY_TARGET
         data:
-          title: 🪣 Regenton leeg
-          message: De regenton is leeg. Pomp en ventiel zijn uitgezet.
+          title: 🪣 Regenton empty
+          message: The rain barrel is empty. Pump and valve have been turned off.
     - conditions:
       - condition: trigger
-        id: ton_vol
+        id: barrel_full
       sequence:
       - action: notify.YOUR_NOTIFY_TARGET
         data:
-          title: 💧 Regenton weer vol
-          message: De regenton heeft weer voldoende water.
+          title: 💧 Regenton full again
+          message: The rain barrel has water again.
   mode: single
 
-- alias: Regenton pomp en ventiel synchroon houden
+- alias: Regenton keep pump and valve in sync
   description: >-
-    Vangnet, eenrichting: als de pomp aan staat MOET het magneetventiel
-    ook aan staan (= dicht, het is een Normally Open klep die pas
-    dichtgaat zodra hij stroom krijgt). Omgekeerd hoeft dit niet: ventiel
-    aan zonder pomp is normaal (bv. tijdens het lekkage-noodscenario). De
-    normale "Regenton"-automation gebruikt zelf al een opstartvertraging
-    van 2 seconden, dus deze vangnet-trigger wacht bewust 3 seconden om
-    dat niet als storing te zien.
+    Failsafe, one-directional: if the pump is on, the solenoid valve
+    MUST also be on (= closed, it's a normally-open valve that only
+    closes once it receives power). The reverse doesn't have to hold:
+    valve on without the pump is normal (e.g. during the leak emergency
+    scenario). The regular "Regenton" automation already uses a 2-second
+    startup delay itself, so this failsafe trigger deliberately waits 3
+    seconds so it doesn't mistake that for a fault.
   triggers:
   - trigger: state
-    entity_id: switch.regenton_pomp
+    entity_id: switch.regenton_pump
     to: 'on'
     for:
       seconds: 3
   conditions:
   - condition: state
-    entity_id: switch.regenton_magneetventiel
+    entity_id: switch.regenton_solenoid_valve
     state: 'off'
   actions:
   - target:
-      entity_id: switch.regenton_magneetventiel
+      entity_id: switch.regenton_solenoid_valve
     action: switch.turn_on
   mode: single
 
-- alias: Regenton lekkage noodstop
+- alias: Regenton leak emergency stop
   description: >-
-    Veiligheid: waterflow boven 6 L/min duidt op een lekkage. Pomp direct
-    uit, magneetventiel dicht (Normally Open klep, dus stroom erop = dicht)
-    en een melding. Pas de drempelwaarde (above: 6) aan op wat voor jouw
-    opstelling een normale doorstroomsnelheid is. De conditie zorgt dat
-    dit maar één keer afvuurt per lekkage (pas weer opnieuw als pomp/
-    ventiel intussen weer in de normale stand stonden) i.p.v. bij elke
-    sensorupdate opnieuw te schieten.
+    Safety: flow above 6 L/min indicates a leak. Pump off immediately,
+    solenoid valve closed (normally-open valve, so powered = closed) and
+    a notification. Adjust the threshold (above: 6) to whatever a normal
+    flow rate is for your setup. The condition makes sure this only
+    fires once per leak (only fires again once pump/valve are back in
+    their normal state) instead of re-firing on every sensor update.
   triggers:
   - trigger: numeric_state
-    entity_id: sensor.regenton_waterflow
+    entity_id: sensor.regenton_water_flow
     above: 6
   conditions:
   - condition: or
     conditions:
     - condition: state
-      entity_id: switch.regenton_pomp
+      entity_id: switch.regenton_pump
       state: 'on'
     - condition: state
-      entity_id: switch.regenton_magneetventiel
+      entity_id: switch.regenton_solenoid_valve
       state: 'off'
   actions:
   - target:
-      entity_id: switch.regenton_pomp
+      entity_id: switch.regenton_pump
     action: switch.turn_off
   - target:
-      entity_id: switch.regenton_magneetventiel
+      entity_id: switch.regenton_solenoid_valve
     action: switch.turn_on
   - action: notify.YOUR_NOTIFY_TARGET
     data:
-      title: 🚨 Regenton LEKKAGE
+      title: 🚨 Regenton LEAK
       message: >-
-        Waterflow was {{ states('sensor.regenton_waterflow') }} L/min
-        (>6 L/min). Pomp uit en ventiel dicht gezet als noodstop.
+        Water flow was {{ states('sensor.regenton_water_flow') }} L/min
+        (>6 L/min). Pump switched off and valve closed as an emergency stop.
   mode: single
 
-- alias: Regenton pomp maximaal 21 minuten aan
+- alias: Regenton pump maximum 21 minutes on
   description: >-
-    Veiligheid: als de pomp om wat voor reden dan ook langer dan 21
-    minuten onafgebroken aan staat, wordt hij (en het ventiel) geforceerd
-    uitgezet en volgt een melding. Pas de duur (for: minutes: 21) aan op
-    wat voor jouw tuin realistisch is.
+    Safety: if the pump stays on continuously for more than 21 minutes
+    for whatever reason, it (and the valve) is force-shut-off and you
+    get a notification. Adjust the duration (for: minutes: 21) to
+    whatever is realistic for your garden.
   triggers:
   - trigger: state
-    entity_id: switch.regenton_pomp
+    entity_id: switch.regenton_pump
     to: 'on'
     for:
       minutes: 21
   conditions: []
   actions:
   - target:
-      entity_id: switch.regenton_pomp
+      entity_id: switch.regenton_pump
     action: switch.turn_off
   - target:
-      entity_id: switch.regenton_magneetventiel
+      entity_id: switch.regenton_solenoid_valve
     action: switch.turn_off
   - action: notify.YOUR_NOTIFY_TARGET
     data:
-      title: ⚠️ Regenton pomp noodstop
-      message: Pomp stond langer dan 21 minuten aan en is automatisch uitgezet.
+      title: ⚠️ Regenton pump emergency stop
+      message: Pump was on for more than 21 minutes and has been switched off automatically.
   mode: single
 
-- alias: Regenton te warm
+- alias: Regenton too hot
   description: >-
-    Melding als de ESP32-behuizing boven 65°C komt (bv. door directe zon
-    of een falende ventilator). Pas de drempel aan op je eigen behuizing.
+    Notification if the ESP32 enclosure goes above 65°C (e.g. from
+    direct sun or a failing fan). Adjust the threshold to suit your own
+    enclosure.
   triggers:
   - trigger: temperature.crossed_threshold
     target:
-      entity_id: sensor.regenton_esp32_temperatuur
+      entity_id: sensor.regenton_esp32_temperature
     options:
       behavior: each
       for:
@@ -192,7 +194,7 @@
     metadata: {}
     data:
       message: >-
-        ESP32 regenton te warm: {{ states('sensor.regenton_esp32_temperatuur')
+        Regenton ESP32 too hot: {{ states('sensor.regenton_esp32_temperature')
         }}°C
-      title: Regenton ESP te warm!
+      title: Regenton ESP too hot!
   mode: single

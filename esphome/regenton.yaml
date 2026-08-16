@@ -1,11 +1,11 @@
-# Regenton ESPHome-firmware
+# Regenton (rain barrel) ESPHome firmware
 #
-# Vereist in secrets.yaml (zie secrets.yaml.example): wifi_ssid,
+# Requires in secrets.yaml (see secrets.yaml.example): wifi_ssid,
 # wifi_password, ota_password.
 #
-# `use_address` (een vast IP voor snellere OTA-uploads) is uit deze
-# versie gehaald omdat dat site-specifiek is — zet 'm zelf terug als je
-# een vast IP voor je Regenton-board wilt.
+# `use_address` (a fixed IP for faster OTA uploads) has been removed
+# from this version because it's site-specific — add it back yourself
+# if you want a fixed IP for your Regenton board.
 
 esphome:
   name: regenton
@@ -27,67 +27,68 @@ ota:
 logger:
 
 sensor:
-  # Behuizingstemperatuur (ESP32-interne sensor, geen extra hardware nodig).
-  # Wordt zowel lokaal gebruikt om de ventilator aan te sturen (zie
-  # interval hieronder) als in Home Assistant om een "te warm"-melding
-  # te geven (zie ../automations.yaml).
+  # Enclosure temperature (ESP32-internal sensor, no extra hardware
+  # needed). Used both locally to drive the fan (see the interval
+  # below) and in Home Assistant to send an "too hot" notification
+  # (see ../automations.yaml).
   - platform: internal_temperature
-    name: "ESP32 temperatuur"
+    name: "ESP32 Temperature"
     id: internal_temperature_sensor
     update_interval: 30s
 
-  # Pulse-based waterflow-sensor op GPIO13. De multiply-filter (0.00225)
-  # is gekalibreerd op ~444 pulsen per liter voor de sensor die hier
-  # gebruikt is — pas dit aan op de kalibratie van jouw eigen sensor.
+  # Pulse-based water flow sensor on GPIO13. The multiply filter
+  # (0.00225) is calibrated for ~444 pulses per litre for the sensor
+  # used here — adjust this to match the calibration of your own
+  # sensor.
   - platform: pulse_counter
     pin: GPIO13
-    name: "Waterflow"
+    name: "Water Flow"
     unit_of_measurement: "L/min"
     update_interval: 1s
     filters:
       - multiply: 0.00225
 
 binary_sensor:
-  # Vlotter (float switch) op GPIO5. INPUT_PULLUP + inverted omdat de
-  # schakelaar tegen GND schakelt; delayed_on/off van 2s onderdrukt
-  # geklots/contactdender terwijl het waterniveau rond de drempel
-  # schommelt.
+  # Float switch on GPIO5. INPUT_PULLUP + inverted because the switch
+  # closes against GND; delayed_on/off of 2s suppresses chatter while
+  # the water level hovers around the threshold.
   - platform: gpio
     pin:
       number: GPIO5
       mode: INPUT_PULLUP
       inverted: true
-    name: "Vlotter"
+    name: "Float Switch"
     device_class: moisture
     filters:
       - delayed_on: 2s
       - delayed_off: 2s
 
 switch:
-  # Relais voor de pomp (GPIO21) en het magneetventiel (GPIO19).
-  # inverted: true omdat dit relaismodules zijn die actief-laag schakelen
-  # (GPIO laag = relais aan). Het magneetventiel is Normally Open: pas
-  # als hij stroom krijgt gaat hij dicht (zie de toelichting in
-  # ../automations.yaml bij "Regenton pomp en ventiel synchroon houden").
+  # Relays for the pump (GPIO21) and the solenoid valve (GPIO19).
+  # inverted: true because these are relay modules that trigger
+  # active-low (GPIO low = relay on). The solenoid valve is normally
+  # open: it only closes once it receives power (see the explanation
+  # in ../automations.yaml under "Regenton keep pump and valve in
+  # sync").
   - platform: gpio
     pin:
       number: GPIO21
       inverted: true
-    name: "Pomp"
-    id: pomp
+    name: "Pump"
+    id: pump
 
   - platform: gpio
     pin:
       number: GPIO19
       inverted: true
-    name: "Magneetventiel"
-    id: magneetventiel
+    name: "Solenoid Valve"
+    id: solenoid_valve
 
 fan:
   - platform: speed
     output: fan_output
-    name: "Ventilator"
-    id: ventilator
+    name: "Fan"
+    id: fan_
 
 output:
   - platform: ledc
@@ -95,11 +96,11 @@ output:
     id: fan_output
     frequency: 25000 Hz
 
-# Lokale, van Home Assistant onafhankelijke koeling: elke 2 minuten de
-# behuizingstemperatuur checken en de ventilator aan/uit zetten op basis
-# van een drempel van 65°C. Home Assistant krijgt via de "Regenton te
-# warm"-automation alleen een melding als dit gebeurt, maar de koeling
-# zelf blijft ook werken als HA offline is.
+# Local cooling control, independent of Home Assistant: check the
+# enclosure temperature every 2 minutes and turn the fan on/off based
+# on a 65°C threshold. Home Assistant only gets a notification about
+# this via the "Regenton too hot" automation, but the cooling itself
+# keeps working even if HA is offline.
 interval:
   - interval: 120s
     then:
@@ -109,6 +110,6 @@ interval:
               id: internal_temperature_sensor
               above: 65
           then:
-            - fan.turn_on: ventilator
+            - fan.turn_on: fan_
           else:
-            - fan.turn_off: ventilator
+            - fan.turn_off: fan_
