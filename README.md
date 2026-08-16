@@ -15,7 +15,9 @@ detection, a stuck pump, and overheating.
 
 > **Status:** this is an extract from a private Home Assistant setup,
 > intended to allow others to replicate it. See [To do](#to-do) for
-> what is still missing (especially: photos/diagram of the physical setup).
+> what is still missing (especially: photos of the physical setup —
+> a [parts diagram](diagram.html) with full parts list is already here,
+> photos to follow).
 
 ## How it works
 
@@ -215,7 +217,7 @@ this, but may vary between sensors — test with a known volume of water.
 
 ## To do
 
-- [ ] Photos/diagram of the physical setup and wiring
+- [ ] Photos of the physical setup and wiring — see [`diagram.html`](diagram.html) (parts diagram + full parts list; photos to be added to `photos/`)
 - [ ] Confirm exact parts list (brand/type per component)
 - [x] Choose a licence — CC BY-SA 4.0, see [`LICENSE`](LICENSE)
 - [ ] Move to the final GitHub repository once created

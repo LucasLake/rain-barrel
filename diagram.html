@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rain Barrel Pump — Parts Diagram</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Segoe UI", sans-serif; background: #f5f5f0; color: #222; padding: 24px; max-width: 1200px; margin: 0 auto; }
+  h1 { font-size: 1.5rem; margin-bottom: 6px; }
+  .subtitle { color: #666; font-size: 0.9rem; margin-bottom: 32px; }
+  .section { margin-bottom: 48px; }
+  .section h2 { font-size: 1.1rem; font-weight: 600; border-bottom: 2px solid #333; padding-bottom: 6px; margin-bottom: 16px; }
+  h3 { margin: 20px 0 8px; font-size: 0.95rem; }
+  .photo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: 32px; }
+  .photo-box { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  .photo-box img { width: 100%; height: auto; display: block; }
+  .photo-caption { padding: 8px 12px; font-size: 0.8rem; color: #555; font-style: italic; }
+  .parts-table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); margin-bottom: 16px; }
+  .parts-table th { background: #222; color: white; padding: 10px 14px; text-align: left; font-size: 0.85rem; }
+  .parts-table td { padding: 9px 14px; font-size: 0.85rem; border-bottom: 1px solid #eee; vertical-align: top; }
+  .parts-table tr:last-child td { border-bottom: none; }
+  .parts-table tr:nth-child(even) td { background: #fafafa; }
+  .num-badge { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: #e63946; color: white; font-weight: 700; font-size: 0.75rem; margin-right: 2px; }
+  .misc-list { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+  .misc-list li { background: white; border-radius: 6px; padding: 8px 12px; font-size: 0.88rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .misc-list li::before { content: "· "; color: #e63946; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<h1>Rain Barrel Pump Automation — Parts Diagram</h1>
+<p class="subtitle">ESPHome + Home Assistant · © 2026 Lucas van der Meer · CC BY-SA 4.0</p>
+
+<div class="section">
+  <h2>Electronics enclosure (inside)</h2>
+  <div class="photo-grid">
+    <div class="photo-box">
+      <img src="photos/ann_interior.jpg" alt="Electronics enclosure interior">
+      <div class="photo-caption">1 USB 5V supply · 2 Buck converter (20V) · 3 24V power supply · 4 Relay module · 5 ESP32 · 6 Wago connectors</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>Enclosure sides &amp; ventilation</h2>
+  <div class="photo-grid">
+    <div class="photo-box">
+      <img src="photos/ann_side_right.jpg" alt="Right side">
+      <div class="photo-caption">7 Pump cable gland · 8 Fan outlet with fly mesh · 9 Float switch cable gland</div>
+    </div>
+    <div class="photo-box">
+      <img src="photos/ann_side_left.jpg" alt="Left side">
+      <div class="photo-caption">20 230V mains entry · 21 Flow sensor cable · 22 Valve cable</div>
+    </div>
+    <div class="photo-box">
+      <img src="photos/ann_bottom.jpg" alt="Bottom ventilation inlet">
+      <div class="photo-caption">19 Ventilation air inlet with fly mesh</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>Plumbing (wall)</h2>
+  <div class="photo-grid">
+    <div class="photo-box">
+      <img src="photos/ann_plumbing.jpg" alt="Plumbing overview">
+      <div class="photo-caption">10 Wall tap · 11 Solenoid valve · 12 Swivel couplings (×2) · 13 Flow sensor · 14 Non-return valve · 15 Manifold</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>In and around the rain barrel</h2>
+  <div class="photo-grid">
+    <div class="photo-box">
+      <img src="photos/ann_pump.jpg" alt="Pump">
+      <div class="photo-caption">17 Parkside PRPA 20-Li B3 pump — modified to run on fixed 20V DC</div>
+    </div>
+    <div class="photo-box">
+      <img src="photos/ann_float.jpg" alt="Float switch">
+      <div class="photo-caption">18 Float switch — hangs from barrel rim, signals when barrel is empty</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>Complete parts list</h2>
+
+  <h3>Electronics</h3>
+  <table class="parts-table">
+    <tr><th>#</th><th>Component</th><th>Specifications</th><th>Source</th></tr>
+    <tr><td><span class="num-badge">5</span></td><td>ESP32 WROOM-32</td><td>Dev board with USB-C</td><td>Amazon</td></tr>
+    <tr><td><span class="num-badge">3</span></td><td>24V switching power supply</td><td>Open frame, 5A, 120W</td><td>Amazon</td></tr>
+    <tr><td><span class="num-badge">2</span></td><td>Buck converter (20V)</td><td>Adjustable DC-DC, 20A/300W. Steps 24V down to 20V for pump.</td><td>Amazon</td></tr>
+    <tr><td><span class="num-badge">1</span></td><td>USB 5V power supply</td><td>Separate supply for ESP32, fully isolated from 24V circuit.</td><td>Any USB charger 5V 1A+</td></tr>
+    <tr><td><span class="num-badge">4</span></td><td>Relay module, 2-channel 5V</td><td>With optocoupler, active-low trigger (SUNFOUNDER). Controls pump and valve.</td><td>Amazon</td></tr>
+    <tr><td><span class="num-badge">13</span></td><td>Flow sensor ¾" brass</td><td>YF-S201 variant, ~444 pulses/litre. Detects water draw.</td><td>Amazon</td></tr>
+    <tr><td><span class="num-badge">18</span></td><td>Float switch</td><td>Dry contact, 3 wires (COM/NO/NC), 3m cable.</td><td>Amazon</td></tr>
+    <tr><td><span class="num-badge">8</span></td><td>30mm 5V PWM fan</td><td>Enclosure cooling. Controlled via GPIO23, activates above 65°C.</td><td>Electronics supplier</td></tr>
+    <tr><td><span class="num-badge">6</span></td><td>Wago 221 connectors</td><td>Wire distribution and common ground rail.</td><td>Hardware store</td></tr>
+  </table>
+
+  <h3>Plumbing</h3>
+  <table class="parts-table">
+    <tr><th>#</th><th>Component</th><th>Specifications</th><th>Source</th></tr>
+    <tr><td><span class="num-badge">17</span></td><td>Parkside PRPA 20-Li B3 pump</td><td>20V cordless rain barrel pump, modified for fixed 20V DC via buck converter.</td><td>Lidl</td></tr>
+    <tr><td><span class="num-badge">11</span></td><td>Solenoid valve 24V DC NO</td><td>¾" brass, normally open. Heschen 2WK200-20. Closes when pump is active.</td><td>Amazon</td></tr>
+    <tr><td><span class="num-badge">14</span></td><td>Non-return valve</td><td>Garden hose type. In pump outlet, prevents tap water flowing into barrel.</td><td>Amazon</td></tr>
+    <tr><td><span class="num-badge">15</span></td><td>Bradas manifold ¾" brass</td><td>2-input Y-piece with manual shutoff per branch. Combines tap and pump lines.</td><td>Bol.com</td></tr>
+    <tr><td><span class="num-badge">12</span></td><td>Swivel coupling ¾" M×F (×2)</td><td>Between tap–valve and valve–manifold. Allows mounting without rotating pipe.</td><td>Amazon</td></tr>
+    <tr><td><span class="num-badge">10</span></td><td>Wall tap</td><td>Existing mains water supply.</td><td>—</td></tr>
+  </table>
+
+  <h3>Enclosure &amp; installation</h3>
+  <table class="parts-table">
+    <tr><th>#</th><th>Component</th><th>Specifications</th><th>Source</th></tr>
+    <tr><td>—</td><td>Weatherproof enclosure</td><td>Large enough for PSU + electronics. Ventilation holes mean it is no longer fully IP-rated — condensation is the main risk.</td><td>Amazon</td></tr>
+    <tr><td><span class="num-badge">7</span></td><td>Cable gland — pump</td><td>Watertight entry for 20V pump power cable.</td><td>Amazon</td></tr>
+    <tr><td><span class="num-badge">9</span></td><td>Cable gland — float switch</td><td>Watertight entry for float switch wiring.</td><td>Amazon</td></tr>
+    <tr><td><span class="num-badge">20</span></td><td>Cable gland — 230V mains</td><td>Watertight entry for mains power (IEC C13 printer cable, cut and wired directly).</td><td>Amazon</td></tr>
+    <tr><td><span class="num-badge">21</span></td><td>Cable gland — flow sensor</td><td>Watertight entry for flow sensor signal cable.</td><td>Amazon</td></tr>
+    <tr><td><span class="num-badge">22</span></td><td>Cable gland — valve</td><td>Watertight entry for solenoid valve cable.</td><td>Amazon</td></tr>
+    <tr><td><span class="num-badge">19</span></td><td>Ventilation inlet with fly mesh</td><td>Bottom of enclosure. Plastic cover cap prevents direct splash ingress.</td><td>Hardware store</td></tr>
+    <tr><td>—</td><td>Mains cable (IEC C13 printer cable)</td><td>3-wire with earth, outdoor rated. Cut and wired directly to 24V supply.</td><td>Repurposed</td></tr>
+  </table>
+
+  <h3>Sundries &amp; tools</h3>
+  <ul class="misc-list">
+    <li>Wago 221 connectors (assorted)</li>
+    <li>Terminal blocks (schroefklemmenblokken)</li>
+    <li>PCB standoffs + screws (assortment box)</li>
+    <li>Cable ferrules + crimping tool</li>
+    <li>Jumper cables (FF, MF, MM) + dupont connectors + crimping tool</li>
+    <li>Loose wire (e.g. speaker cable)</li>
+    <li>230V wire for USB supply connection</li>
+    <li>Soldering iron</li>
+    <li>Multimeter</li>
+    <li>Heat shrink tubing</li>
+    <li>Cable ties</li>
+    <li>PTFE tape</li>
+    <li>Hot glue gun</li>
+    <li>Step drill bit (for ventilation holes)</li>
+  </ul>
+</div>
+
+</body>
+</html>
