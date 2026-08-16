@@ -1,102 +1,221 @@
-# Regenton
+# Rain Barrel Pump Automation
 
-Een ESPHome + Home Assistant-project dat een regenton automatisch laat
-bijspringen als watervoorziening voor de tuin/sproeiers. Zodra er
-downstream water wordt afgenomen (gedetecteerd via een flow-sensor),
-schakelt dit systeem een pomp + magneetventiel in om water uit de
-regenton te leveren — mits de ton niet leeg is. Met ingebouwde
-veiligheden tegen lekkage, een vastgelopen pomp en ooververhitting.
+An ESPHome + Home Assistant project that automatically switches a rain
+barrel pump to supply water to the garden/sprinklers. Whenever water
+is drawn downstream (detected via a flow sensor), this system activates
+a pump + solenoid valve to deliver water from the rain barrel — provided
+the barrel is not empty. Includes built-in safety features for leak
+detection, a stuck pump, and overheating.
 
-> **Status:** dit is een extractie van een privé Home Assistant-setup,
-> bedoeld om anderen dit na te laten bouwen. Zie [Nog te doen](#nog-te-doen)
-> voor wat er nog ontbreekt (vooral: foto's/schema van de fysieke opstelling).
+> **Disclaimer:** these instructions were generated with the help of
+> Claude (Anthropic) after the build was completed, based on the working
+> setup. The author accepts no responsibility for damage, leaks,
+> electrical problems or other consequences of replicating this project.
+> Always work safely with electricity and water.
 
-## Hoe het werkt
+> **Status:** this is an extract from a private Home Assistant setup,
+> intended to allow others to replicate it. See [To do](#to-do) for
+> what is still missing (especially: photos/diagram of the physical setup).
 
-1. Een **flow-sensor** in de hoofdwaterleiding naar de tuin/sproeiers
-   detecteert wanneer er water wordt afgenomen.
-2. Zodra er flow is (> 1 L/min) én de **vlotter** (float switch) in de
-   regenton aangeeft dat er water is, gaat het **magneetventiel** open
-   en (2 seconden later) de **pomp** aan — die levert dan regenwater
-   in plaats van (of naast) leidingwater.
-3. Zodra de flow stopt (< 1 L/min), gaan pomp en ventiel weer uit.
-4. Loopt de ton tijdens gebruik leeg (vlotter → uit), dan stoppen pomp
-   en ventiel direct, en krijg je een melding. Komt er weer water bij
-   (vlotter → aan), dan ook een melding.
-5. Een aantal losse veiligheidsautomations bewaakt de rest:
-   lekkagedetectie (te hoge flow), een pomp die te lang aanstaat, het
-   magneetventiel dat niet synchroon loopt met de pomp, en een te
-   warme ESP32-behuizing.
+## How it works
 
-## Benodigde hardware (uit `esphome/regenton.yaml`)
+1. A **flow sensor** in the main water line to the garden/sprinklers
+   detects when water is being drawn.
+2. When flow is detected (> 1 L/min) and the **float switch** in the
+   rain barrel indicates water is present, the **solenoid valve** closes
+   the tap and (2 seconds later) the **pump** starts — delivering rain
+   water instead of tap water.
+3. When flow stops (< 1 L/min), both pump and valve turn off and the
+   tap supplies water again.
+4. If the barrel runs dry during use (float → off), pump and valve stop
+   immediately and you receive a notification. When water returns
+   (float → on), another notification is sent.
+5. A set of safety automations monitors the rest: leak detection (too
+   high flow), a pump running too long, the solenoid valve out of sync
+   with the pump, and an overheating ESP32 enclosure.
 
-| Component | Rol | GPIO | Aansluiting (HA-domein) |
+## Required hardware
+
+### Electronics
+
+| Component | Specifications | Source |
+|---|---|---|
+| ESP32 WROOM-32 | dev board with USB-C | [Amazon](https://www.amazon.nl/dp/B0D4QZ9CKD) |
+| 24V 5A switching power supply | open frame, 120W | [Amazon](https://www.amazon.nl/dp/B0BX2GF5QY) |
+| Buck converter 20V | adjustable DC-DC, 20A/300W | [Amazon](https://www.amazon.nl/dp/B09KC2FNLB) |
+| 5V USB power supply | separate supply for ESP32, isolated from 24V circuit | Any 5V 1A+ USB charger |
+| 2-channel 5V relay module | with optocoupler, active-low | [Amazon](https://www.amazon.nl/dp/B0B41KGSJ7) |
+| ¾" brass flow sensor | YF-S201 variant, ~444 pulses/litre | [Amazon](https://www.amazon.nl/dp/B0DP93BWWJ) |
+| Float switch | dry contact, 3 wires (COM/NO/NC) | [Amazon](https://www.amazon.nl/dp/B09XXHY7C9) |
+| 24V DC NO solenoid valve | ¾" brass, normally open | Heschen 2WK200-20 |
+| 30mm 5V PWM fan | for enclosure cooling | electronics supplier |
+| Weatherproof enclosure | large enough for power supply + electronics | hardware store |
+| Cable glands | for watertight cable entry | hardware store |
+| Wago connectors | for connecting wires | hardware store |
+
+### Pump
+
+This project uses a **Parkside PTBP 20-Li** cordless rain barrel pump,
+which normally runs on a 20V lithium battery pack. In this setup the
+battery is replaced by an adjustable buck converter supplying 20V from
+the 24V power supply. The pump cable is connected directly to the buck
+converter output.
+
+Note: the pump is designed for manual use with a battery. By connecting
+it to a fixed power supply you lose the built-in battery protection.
+Use a buck converter with sufficient current capacity (minimum 4A at
+20V).
+
+### Plumbing
+
+| Component | Specifications | Source |
+|---|---|---|
+| ¾" brass Y-piece / manifold | 2 inputs, 1 output | [Bol.com](https://www.bol.com/nl/nl/p/verdeler-splitter-messing-2-aftakkingen-3-4/9300000044146766/) |
+| Garden hose non-return valve | in pump outlet, prevents backflow | Gardena/hardware store |
+| ¾" swivel coupling M×F | for mounting without rotation | Amazon |
+
+## Wiring diagram
+
+```
+230V mains
+    │
+    ├── 24V power supply (120W)
+    │       │
+    │       ├── Buck converter → 20V → Relay COM1 → Pump (+)
+    │       │                          Pump (−) → 24V GND
+    │       │
+    │       └── Relay COM2 → Solenoid valve (+)
+    │                        Solenoid valve (−) → 24V GND
+    │
+    └── 5V USB power supply → ESP32 (USB-C)
+                                  │
+                                  ├── 5V pin → Wago → Relay VCC
+                                  │                   Flow sensor red
+                                  │                   Fan red
+                                  │
+                                  ├── GND → Wago → Relay GND + BGND (24V GND)
+                                  │                Flow sensor black
+                                  │                Float switch black
+                                  │                Fan black
+                                  │
+                                  ├── GPIO5  → Float switch signal (blue)
+                                  ├── GPIO13 → Flow sensor yellow
+                                  ├── GPIO19 → Relay IN1 (solenoid valve)
+                                  ├── GPIO21 → Relay IN2 (pump)
+                                  └── GPIO23 → Fan blue (PWM)
+```
+
+**Important:** the relay module's BGND must be connected to 24V GND
+(common ground). Use a **separate 5V USB power supply** for the ESP32
+— not the 24V supply via a buck converter. A pump draws a large inrush
+current on startup that temporarily overloads the 24V supply; if the
+ESP32 is on the same supply it will reset.
+
+## Plumbing diagram
+
+```
+Tap (wall tap)
+    │
+    └── Solenoid valve (NO, open when pump is off)
+            │
+            └── Y-piece / manifold ¾"  ←── Non-return valve ←── Pump (from rain barrel)
+                    │
+                    └── Flow sensor ¾"
+                            │
+                            └── Distribution manifold
+                                    ├── Sprinklers
+                                    └── Garden hose
+```
+
+**Flow direction:** the tap supplies water by default through the open
+solenoid valve. When the pump takes over, the solenoid valve closes the
+tap. The non-return valve in the pump outlet prevents tap water from
+flowing back into the barrel when the pump is off.
+
+## ESPHome entities (from `esphome/regenton.yaml`)
+
+| Component | Role | GPIO | HA domain |
 |---|---|---|---|
-| ESP32 dev board (`esp32dev`) | brein van het systeem | — | — |
-| Pulse-based waterflow-sensor, gekalibreerd op ~444 pulsen/liter | meet doorstroom in L/min | GPIO13 | `sensor` |
-| Vlotter / float switch (schakelt tegen GND) | detecteert of de ton water bevat | GPIO5 | `binary_sensor` |
-| Relais (actief-laag) + **Normally Open** magneetventiel | laat regenwater door (dicht = stroom erop) | GPIO19 | `switch` |
-| Relais (actief-laag) + waterpomp | pompt water uit de ton | GPIO21 | `switch` |
-| PWM-ventilator (via LEDC-output) | koelt de behuizing, lokaal aangestuurd op >65°C | GPIO23 | `fan` |
-| — (ESP32-interne temperatuursensor) | bewaakt behuizingstemperatuur | intern | `sensor` |
+| ESP32 dev board (`esp32dev`) | system brain | — | — |
+| Flow sensor, ~444 pulses/litre | measures flow in L/min | GPIO13 | `sensor` |
+| Float switch (switches to GND) | detects whether barrel contains water | GPIO5 | `binary_sensor` |
+| Relay (active-low) + NO solenoid valve | closes tap when pump is on | GPIO19 | `switch` |
+| Relay (active-low) + water pump | pumps water from the barrel | GPIO21 | `switch` |
+| PWM fan (via LEDC output) | cools enclosure, locally controlled above 65°C | GPIO23 | `fan` |
+| ESP32 internal temperature sensor | monitors enclosure temperature | internal | `sensor` |
 
-De ventilatoraansturing gebeurt volledig lokaal op de ESP (elke 2
-minuten temperatuur checken, aan boven 65°C) — dat blijft dus ook
-werken als Home Assistant offline is. HA krijgt via de "Regenton te
-warm"-automation alleen een melding als dat gebeurt.
+## Installation
 
-## Installatie
-
-1. **ESPHome-firmware flashen**: kopieer
-   [`esphome/secrets.yaml.example`](esphome/secrets.yaml.example) naar
-   `esphome/secrets.yaml` en vul je eigen wifi-gegevens + een zelfgekozen
-   OTA-wachtwoord in. Flash daarna
-   [`esphome/regenton.yaml`](esphome/regenton.yaml) naar je ESP32 (via
-   `esphome run regenton.yaml`, of upload de map via de ESPHome-add-on
-   in Home Assistant).
-2. Voeg het device toe aan Home Assistant via de ESPHome-integratie
-   (auto-discovery via zeroconf, of handmatig met IP-adres).
-3. Noteer hoe de entities heten na toevoegen (bv. `sensor.regenton_waterflow`,
+1. **Flash ESPHome firmware**: copy
+   [`esphome/secrets.yaml.example`](esphome/secrets.yaml.example) to
+   `esphome/secrets.yaml` and fill in your WiFi credentials. Then flash
+   [`esphome/regenton.yaml`](esphome/regenton.yaml) to your ESP32 via
+   USB using `esphome run regenton.yaml --device COMx` (Windows) or
+   via the ESPHome add-on in Home Assistant. After the first USB flash,
+   further updates work via OTA (WiFi).
+2. Add the device to Home Assistant via the ESPHome integration
+   (auto-discovery via zeroconf, or manually with IP address).
+3. Note the entity names after adding (e.g. `sensor.regenton_waterflow`,
    `binary_sensor.regenton_vlotter`, `switch.regenton_pomp`,
    `switch.regenton_magneetventiel`, `fan.regenton_ventilator`,
-   `sensor.regenton_esp32_temperatuur`) — pas de entity-ID's in
-   `automations.yaml` en `template_sensors.yaml` hierin aan als jouw
-   namen afwijken.
-4. Kopieer de inhoud van [`automations.yaml`](automations.yaml) naar
-   je eigen `automations.yaml` (of importeer losse automations via de
-   UI).
-5. Kopieer de `template:`-sectie uit
-   [`template_sensors.yaml`](template_sensors.yaml) naar je
-   `configuration.yaml` (samenvoegen met een eventuele bestaande
-   `template:`-sleutel, YAML staat geen dubbele top-level keys toe).
-6. **Vervang de placeholder-notificatieservice** — zoek in
-   `automations.yaml` naar `notify.YOUR_NOTIFY_TARGET` en vervang dat
-   door jouw eigen notify-service (bv. `notify.mobile_app_telefoon`).
-   Zie Instellingen → Automatiseringen → nieuwe actie → "Notificatie
-   verzenden" in de UI om te zien welke service jij hebt.
-7. Herlaad automations (Instellingen → Systeem → YAML herladen →
-   Automatiseringen) en herstart HA voor de nieuwe template-sensoren.
-8. Optioneel: voeg de kaart uit [`dashboard.yaml`](dashboard.yaml) toe
-   aan een dashboard (Lovelace: kaart toevoegen → YAML-modus → plak de
-   inhoud).
+   `sensor.regenton_esp32_temperatuur`) — adjust the entity IDs in
+   `automations.yaml` if your names differ.
+4. Copy the contents of [`automations.yaml`](automations.yaml) to your
+   own `automations.yaml` (or import individual automations via the UI).
+5. Copy the `template:` section from
+   [`template_sensors.yaml`](template_sensors.yaml) to your
+   `configuration.yaml`.
+6. **Replace the placeholder notification service** — search
+   `automations.yaml` for `notify.YOUR_NOTIFY_TARGET` and replace it
+   with your own notify service (e.g. `notify.mobile_app_phone`).
+7. Reload automations and restart HA.
+8. Optional: add the card from [`dashboard.yaml`](dashboard.yaml) to
+   a dashboard.
 
-## Veiligheidsautomations
+## Safety automations
 
-- **Regenton lekkage noodstop** — flow boven 6 L/min duidt op een lek;
-  pomp direct uit, ventiel dicht, melding. Pas de drempel (`above: 6`)
-  aan op je eigen normale doorstroomsnelheid.
-- **Regenton pomp maximaal 21 minuten aan** — voorkomt een vastgelopen
-  pomp die eindeloos doorloopt. Pas de duur aan naar wat voor jouw tuin
-  realistisch is.
-- **Regenton pomp en ventiel synchroon houden** — vangnet: als de pomp
-  aan staat moet het ventiel ook aan (open) staan.
-- **Regenton te warm** — melding als de ESP32-behuizing boven 65°C
-  komt.
+- **Leak emergency stop** — flow above 6 L/min indicates a leak; pump
+  off immediately, valve closed, notification sent. Adjust the threshold
+  (`above: 6`) to suit your normal flow rate.
+- **Pump maximum 21 minutes on** — prevents a stuck pump running
+  indefinitely. Adjust the duration to what is realistic for your garden.
+- **Keep pump and valve in sync** — failsafe: if the pump is on, the
+  valve must also be on (open).
+- **Enclosure too hot** — notification if the ESP32 enclosure exceeds
+  65°C.
 
-## Nog te doen
+## Important build notes
 
-- [ ] Bevestigen/aanvullen van exacte inkoop-onderdelen (merk/type
-      flow-sensor, pomp, magneetventiel, relais)
-- [ ] Foto's/schema van de fysieke opstelling en bedrading
-- [ ] Licentie kiezen (deze repo heeft er nog geen)
-- [ ] Naar de uiteindelijke GitHub-repo verhuizen zodra die is aangemaakt
+**Power supply:** use a **separate 5V USB power supply** for the ESP32,
+completely isolated from the 24V supply. A motor pump draws an inrush
+current several times its normal draw on startup — this temporarily
+overloads the supply and resets the ESP32 if it shares the same supply.
+
+**Relay:** use a relay module with **active-low trigger** (low level
+trigger). Add `inverted: true` in ESPHome for both relay channels.
+
+**Solenoid valve:** choose a **normally open (NO)** valve. On power
+failure the valve opens and the tap supplies water — the correct
+failsafe for a garden installation. A separate non-return valve on the
+tap side is not needed: the solenoid valve is always closed when the
+pump is running.
+
+**Fan:** the enclosure can heat up significantly in direct sun. A 30mm
+5V PWM fan with a hole at the bottom (air inlet) and side (outlet)
+keeps the temperature under control. Cover holes with fly mesh to keep
+insects out and fit protective caps so water cannot enter directly. The
+enclosure is no longer fully weatherproof once ventilation holes are
+added — condensation is the main risk. Mount the enclosure in a sheltered
+location and ensure good air circulation. Fan control runs entirely
+locally on the ESP32 and does not depend on Home Assistant.
+
+**Flow sensor calibration:** the YF-S201 produces ~450 pulses per litre.
+The calibration value in ESPHome (`multiply: 0.00225`) is tuned for
+this, but may vary between sensors — test with a known volume of water.
+
+## To do
+
+- [ ] Photos/diagram of the physical setup and wiring
+- [ ] Confirm exact parts list (brand/type per component)
+- [ ] Choose a licence
+- [ ] Move to the final GitHub repository once created
