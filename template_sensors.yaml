@@ -1,0 +1,37 @@
+# Regenton template-sensoren
+#
+# Voeg deze samen met een eventuele bestaande `template:`-sleutel in je
+# configuration.yaml (YAML staat geen dubbele top-level keys toe — als
+# je al een `template:`-blok hebt, voeg de `sensor:`/`binary_sensor:`-
+# items hieronder toe aan dat bestaande blok in plaats van dit los te
+# plakken).
+#
+# De twee timestamp-sensoren verwijzen naar automation-entity-ID's
+# (automation.regenton_pomp_en_ventiel_synchroon_houden en
+# automation.regenton_lekkage_noodstop). Die entity-ID's worden door
+# Home Assistant afgeleid van de `alias` van de automation in
+# automations.yaml — als je de alias aanpast, verandert de entity-ID
+# ook en moet je deze verwijzingen meeveranderen.
+
+template:
+  - sensor:
+      - name: Regenton sync laatste run
+        device_class: timestamp
+        state: >
+          {% set ts = state_attr('automation.regenton_pomp_en_ventiel_synchroon_houden', 'last_triggered') %}
+          {{ ts.isoformat() if ts else None }}
+      - name: Regenton lekkage laatste keer
+        device_class: timestamp
+        state: >
+          {% set ts = state_attr('automation.regenton_lekkage_noodstop', 'last_triggered') %}
+          {{ ts.isoformat() if ts else None }}
+  - binary_sensor:
+      - name: Regenton leeg
+        unique_id: regenton_leeg
+        device_class: problem
+        state: "{{ not is_state('binary_sensor.regenton_vlotter', 'on') }}"
+        availability: "{{ has_value('binary_sensor.regenton_vlotter') }}"
+        # HA kleurt device_class "moisture" (de klasse van de vlotter
+        # zelf) altijd rood bij "aan" (= nat = goed, in dit geval). Deze
+        # sensor is het omgekeerde: aan = leeg = probleem = terecht rood,
+        # uit = vol = terecht neutraal.

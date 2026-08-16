@@ -1,0 +1,198 @@
+# Regenton automations
+#
+# Vervang notify.YOUR_NOTIFY_TARGET overal door je eigen notify-service
+# (bv. notify.mobile_app_telefoon). Pas entity-ID's aan als je ESPHome-
+# device andere namen kreeg dan sensor.regenton_*/switch.regenton_*.
+
+- alias: Regenton
+  description: >-
+    Kernlogica: schakelt pomp + magneetventiel in zodra er downstream
+    waterflow gedetecteerd wordt (iemand/iets neemt water af) én de
+    regenton niet leeg is. Zet alles weer uit zodra de flow stopt, of
+    direct als de ton tussentijds leegraakt. Stuurt een notificatie bij
+    zowel leeg- als vol-worden van de ton.
+  triggers:
+  - entity_id: sensor.regenton_waterflow
+    above: 1
+    id: flow_aan
+    trigger: numeric_state
+  - entity_id: sensor.regenton_waterflow
+    below: 1
+    id: flow_uit
+    trigger: numeric_state
+  - entity_id: binary_sensor.regenton_vlotter
+    to: 'off'
+    id: ton_leeg
+    trigger: state
+  - entity_id: binary_sensor.regenton_vlotter
+    to: 'on'
+    id: ton_vol
+    trigger: state
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: flow_aan
+      - condition: state
+        entity_id: binary_sensor.regenton_vlotter
+        state: 'on'
+      sequence:
+      - target:
+          entity_id: switch.regenton_magneetventiel
+        action: switch.turn_on
+      - delay: 00:00:02
+      - target:
+          entity_id: switch.regenton_pomp
+        action: switch.turn_on
+    - conditions:
+      - condition: trigger
+        id: flow_uit
+      sequence:
+      - target:
+          entity_id: switch.regenton_pomp
+        action: switch.turn_off
+      - target:
+          entity_id: switch.regenton_magneetventiel
+        action: switch.turn_off
+    - conditions:
+      - condition: trigger
+        id: ton_leeg
+      sequence:
+      - target:
+          entity_id: switch.regenton_pomp
+        action: switch.turn_off
+      - target:
+          entity_id: switch.regenton_magneetventiel
+        action: switch.turn_off
+      - action: notify.YOUR_NOTIFY_TARGET
+        data:
+          title: 🪣 Regenton leeg
+          message: De regenton is leeg. Pomp en ventiel zijn uitgezet.
+    - conditions:
+      - condition: trigger
+        id: ton_vol
+      sequence:
+      - action: notify.YOUR_NOTIFY_TARGET
+        data:
+          title: 💧 Regenton weer vol
+          message: De regenton heeft weer voldoende water.
+  mode: single
+
+- alias: Regenton pomp en ventiel synchroon houden
+  description: >-
+    Vangnet, eenrichting: als de pomp aan staat MOET het magneetventiel
+    ook aan staan (= dicht, het is een Normally Open klep die pas
+    dichtgaat zodra hij stroom krijgt). Omgekeerd hoeft dit niet: ventiel
+    aan zonder pomp is normaal (bv. tijdens het lekkage-noodscenario). De
+    normale "Regenton"-automation gebruikt zelf al een opstartvertraging
+    van 2 seconden, dus deze vangnet-trigger wacht bewust 3 seconden om
+    dat niet als storing te zien.
+  triggers:
+  - trigger: state
+    entity_id: switch.regenton_pomp
+    to: 'on'
+    for:
+      seconds: 3
+  conditions:
+  - condition: state
+    entity_id: switch.regenton_magneetventiel
+    state: 'off'
+  actions:
+  - target:
+      entity_id: switch.regenton_magneetventiel
+    action: switch.turn_on
+  mode: single
+
+- alias: Regenton lekkage noodstop
+  description: >-
+    Veiligheid: waterflow boven 6 L/min duidt op een lekkage. Pomp direct
+    uit, magneetventiel dicht (Normally Open klep, dus stroom erop = dicht)
+    en een melding. Pas de drempelwaarde (above: 6) aan op wat voor jouw
+    opstelling een normale doorstroomsnelheid is. De conditie zorgt dat
+    dit maar één keer afvuurt per lekkage (pas weer opnieuw als pomp/
+    ventiel intussen weer in de normale stand stonden) i.p.v. bij elke
+    sensorupdate opnieuw te schieten.
+  triggers:
+  - trigger: numeric_state
+    entity_id: sensor.regenton_waterflow
+    above: 6
+  conditions:
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: switch.regenton_pomp
+      state: 'on'
+    - condition: state
+      entity_id: switch.regenton_magneetventiel
+      state: 'off'
+  actions:
+  - target:
+      entity_id: switch.regenton_pomp
+    action: switch.turn_off
+  - target:
+      entity_id: switch.regenton_magneetventiel
+    action: switch.turn_on
+  - action: notify.YOUR_NOTIFY_TARGET
+    data:
+      title: 🚨 Regenton LEKKAGE
+      message: >-
+        Waterflow was {{ states('sensor.regenton_waterflow') }} L/min
+        (>6 L/min). Pomp uit en ventiel dicht gezet als noodstop.
+  mode: single
+
+- alias: Regenton pomp maximaal 21 minuten aan
+  description: >-
+    Veiligheid: als de pomp om wat voor reden dan ook langer dan 21
+    minuten onafgebroken aan staat, wordt hij (en het ventiel) geforceerd
+    uitgezet en volgt een melding. Pas de duur (for: minutes: 21) aan op
+    wat voor jouw tuin realistisch is.
+  triggers:
+  - trigger: state
+    entity_id: switch.regenton_pomp
+    to: 'on'
+    for:
+      minutes: 21
+  conditions: []
+  actions:
+  - target:
+      entity_id: switch.regenton_pomp
+    action: switch.turn_off
+  - target:
+      entity_id: switch.regenton_magneetventiel
+    action: switch.turn_off
+  - action: notify.YOUR_NOTIFY_TARGET
+    data:
+      title: ⚠️ Regenton pomp noodstop
+      message: Pomp stond langer dan 21 minuten aan en is automatisch uitgezet.
+  mode: single
+
+- alias: Regenton te warm
+  description: >-
+    Melding als de ESP32-behuizing boven 65°C komt (bv. door directe zon
+    of een falende ventilator). Pas de drempel aan op je eigen behuizing.
+  triggers:
+  - trigger: temperature.crossed_threshold
+    target:
+      entity_id: sensor.regenton_esp32_temperatuur
+    options:
+      behavior: each
+      for:
+        hours: 0
+        minutes: 1
+        seconds: 0
+      threshold:
+        type: above
+        value:
+          active_choice: number
+          number: 65
+          unit_of_measurement: °C
+  conditions: []
+  actions:
+  - action: notify.YOUR_NOTIFY_TARGET
+    metadata: {}
+    data:
+      message: >-
+        ESP32 regenton te warm: {{ states('sensor.regenton_esp32_temperatuur')
+        }}°C
+      title: Regenton ESP te warm!
+  mode: single

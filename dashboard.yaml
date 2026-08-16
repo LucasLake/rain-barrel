@@ -1,0 +1,35 @@
+# Regenton dashboardkaarten
+#
+# Plak deze in een Lovelace-view (YAML-modus). Pas entity-ID's aan als
+# je ESPHome-device andere namen kreeg.
+
+- type: entities
+  title: Regenton
+  entities:
+    - entity: switch.regenton_magneetventiel
+    - entity: switch.regenton_pomp
+    - entity: binary_sensor.regenton_leeg
+      name: Leeg
+    - entity: sensor.regenton_waterflow
+    - entity: sensor.regenton_esp32_temperatuur
+    - entity: fan.regenton_ventilator
+    - entity: automation.regenton
+    - entity: sensor.regenton_sync_laatste_run
+      name: Laatste sync-run
+    - entity: sensor.regenton_lekkage_laatste_keer
+      name: Laatste lekkage-noodstop
+    - entity: automation.regenton_lekkage_noodstop
+    - entity: automation.regenton_pomp_en_ventiel_synchroon_houden
+
+- type: history-graph
+  title: Regenton ESP temperatuur & ventilator
+  entities:
+    - entity: sensor.regenton_esp32_temperatuur
+    - entity: fan.regenton_ventilator
+  hours_to_show: 2
+
+- type: history-graph
+  title: Regenton waterflow - laatste 5 minuten
+  entities:
+    - entity: sensor.regenton_waterflow
+  hours_to_show: 0.0834
