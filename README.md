@@ -217,7 +217,9 @@ this, but may vary between sensors — test with a known volume of water.
 
 ## To do
 
-- [ ] Photos of the physical setup and wiring — see [`diagram.html`](diagram.html) (parts diagram + full parts list; photos to be added to `photos/`)
+- [ ] Illustrations — first-pass annotated photos are in `photos/`, better versions being generated
+- [ ] Technical diagrams — first version in [`diagram.html`](diagram.html), better versions in progress
 - [ ] Confirm exact parts list (brand/type per component)
+- [ ] Final careful review of the whole repo (instructions, wiring, parts list) before treating it as ready to share
 - [x] Choose a licence — CC BY-SA 4.0, see [`LICENSE`](LICENSE)
-- [ ] Move to the final GitHub repository once created
+- [x] Move to the final GitHub repository — [LucasLake/rain-barrel](https://github.com/LucasLake/rain-barrel)
