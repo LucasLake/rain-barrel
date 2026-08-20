@@ -31,13 +31,14 @@
 
 <h1>Rain Barrel Pump Automation — Parts Diagram</h1>
 <p class="subtitle">ESPHome + Home Assistant · © 2026 Lucas van der Meer · CC BY-SA 4.0</p>
+<p class="subtitle">Illustrated for clarity — real annotated photos of the same build are in <a href="photos/">photos/</a> (originals in <a href="photos/raw/">photos/raw/</a>).</p>
 
 <div class="section">
   <h2>Electronics enclosure (inside)</h2>
   <div class="photo-grid">
     <div class="photo-box">
-      <img src="photos/ann_interior.jpg" alt="Electronics enclosure interior">
-      <div class="photo-caption">1 USB 5V supply · 2 Buck converter (20V) · 3 24V power supply · 4 Relay module · 5 ESP32 · 6 Wago connectors</div>
+      <img src="photos/illustrated/illustrated_interior.png" alt="Electronics enclosure interior">
+      <div class="photo-caption">1 USB 5V supply · 2 Buck converter (20V) · 3 24V power supply · 4 Relay module · 5 ESP32 · 6 Fan</div>
     </div>
   </div>
 </div>
@@ -46,16 +47,12 @@
   <h2>Enclosure sides &amp; ventilation</h2>
   <div class="photo-grid">
     <div class="photo-box">
-      <img src="photos/ann_side_right.jpg" alt="Right side">
+      <img src="photos/illustrated/illustrated_side_right.png" alt="Right side">
       <div class="photo-caption">7 Pump cable gland · 8 Fan outlet with fly mesh · 9 Float switch cable gland</div>
     </div>
     <div class="photo-box">
-      <img src="photos/ann_side_left.jpg" alt="Left side">
-      <div class="photo-caption">20 230V mains entry · 21 Flow sensor cable · 22 Valve cable</div>
-    </div>
-    <div class="photo-box">
-      <img src="photos/ann_bottom.jpg" alt="Bottom ventilation inlet">
-      <div class="photo-caption">19 Ventilation air inlet with fly mesh</div>
+      <img src="photos/illustrated/illustrated_side_left.png" alt="Left side, with bottom ventilation inlets">
+      <div class="photo-caption">19 Ventilation air inlet with fly mesh (×2, bottom) · 20 230V mains entry · 21 Flow sensor cable · 22 Valve cable</div>
     </div>
   </div>
 </div>
@@ -64,7 +61,7 @@
   <h2>Plumbing (wall)</h2>
   <div class="photo-grid">
     <div class="photo-box">
-      <img src="photos/ann_plumbing.jpg" alt="Plumbing overview">
+      <img src="photos/illustrated/illustrated_plumbing.png" alt="Plumbing overview">
       <div class="photo-caption">10 Wall tap · 11 Solenoid valve · 12 Swivel couplings (×2) · 13 Flow sensor · 14 Non-return valve · 15 Manifold</div>
     </div>
   </div>
@@ -74,12 +71,8 @@
   <h2>In and around the rain barrel</h2>
   <div class="photo-grid">
     <div class="photo-box">
-      <img src="photos/ann_pump.jpg" alt="Pump">
-      <div class="photo-caption">17 Parkside PRPA 20-Li B3 pump — modified to run on fixed 20V DC</div>
-    </div>
-    <div class="photo-box">
-      <img src="photos/ann_float.jpg" alt="Float switch">
-      <div class="photo-caption">18 Float switch — hangs from barrel rim, signals when barrel is empty</div>
+      <img src="photos/illustrated/illustrated_pump_float.png" alt="Pump and float switch inside the barrel">
+      <div class="photo-caption">17 Parkside PRPA 20-Li B3 pump — modified to run on fixed 20V DC · 18 Float switch — hangs from barrel rim, signals when barrel is empty</div>
     </div>
   </div>
 </div>
@@ -97,8 +90,7 @@
     <tr><td><span class="num-badge">4</span></td><td>Relay module, 2-channel 5V</td><td>With optocoupler, active-low trigger (SUNFOUNDER). Controls pump and valve.</td><td>Amazon</td></tr>
     <tr><td><span class="num-badge">13</span></td><td>Flow sensor ¾" brass</td><td>YF-S201 variant, ~444 pulses/litre. Detects water draw.</td><td>Amazon</td></tr>
     <tr><td><span class="num-badge">18</span></td><td>Float switch</td><td>Dry contact, 3 wires (COM/NO/NC), 3m cable.</td><td>Amazon</td></tr>
-    <tr><td><span class="num-badge">8</span></td><td>30mm 5V PWM fan</td><td>Enclosure cooling. Controlled via GPIO23, activates above 65°C.</td><td>Electronics supplier</td></tr>
-    <tr><td><span class="num-badge">6</span></td><td>Wago 221 connectors</td><td>Wire distribution and common ground rail.</td><td>Hardware store</td></tr>
+    <tr><td><span class="num-badge">6</span><span class="num-badge">8</span></td><td>30mm 5V PWM fan</td><td>Enclosure cooling. Controlled via GPIO23, activates above 65°C. 6 = fan itself (interior), 8 = outlet grille with fly mesh (exterior).</td><td>Electronics supplier</td></tr>
   </table>
 
   <h3>Plumbing</h3>

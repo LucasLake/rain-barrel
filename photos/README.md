@@ -1,7 +1,10 @@
 # Photos
 
-Referenced by [../diagram.html](../diagram.html). Drop the following files
-in here (filenames must match exactly):
+The annotated photos below were the original numbered callout images for
+[../diagram.html](../diagram.html). That page now uses the illustrated
+versions in [`illustrated/`](illustrated/) instead — these photos are
+kept for reference (real hardware, not a drawing). Drop the following
+files in here (filenames must match exactly):
 
 | File | Shows | Numbered callouts |
 |---|---|---|
@@ -29,3 +32,18 @@ re-annotate them yourself, or just see the unedited shots).
 | `raw/raw_pump.jpg` | `ann_pump.jpg` |
 
 No raw original for `ann_float.jpg` was provided.
+
+## `illustrated/`
+
+Illustrated (drawn, not photographed) versions used in
+[../diagram.html](../diagram.html). Generated from the photos, so the
+same subjects, but not always the same numbering or grouping — see the
+notes column.
+
+| File | Corresponds to | Notes |
+|---|---|---|
+| `illustrated/illustrated_interior.png` | `ann_interior.jpg` | Adds a new callout 6 for the fan itself; the fan wasn't separately numbered in the photo (6 there was Wago connectors, dropped as a numbered callout — still listed under Sundries) |
+| `illustrated/illustrated_side_right.png` | `ann_side_right.jpg` | Same callouts (7, 8, 9) |
+| `illustrated/illustrated_side_left.png` | `ann_side_left.jpg` + `ann_bottom.jpg` | Merges both photos into one image — 19 (bottom vents, ×2) and 20/21/22 (side glands) together |
+| `illustrated/illustrated_plumbing.png` | `ann_plumbing.jpg` | Same callouts (10-15) |
+| `illustrated/illustrated_pump_float.png` | `ann_pump.jpg` + `ann_float.jpg` | Merges both photos into one image (17, 18) |
