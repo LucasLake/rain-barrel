@@ -217,8 +217,8 @@ this, but may vary between sensors — test with a known volume of water.
 
 ## To do
 
-- [ ] Illustrations — first-pass annotated photos are in `photos/`, better versions being generated
-- [ ] Technical diagrams — first version in [`diagram.html`](diagram.html), better versions in progress
+- [x] Illustrations — [`diagram.html`](diagram.html) now uses illustrated diagrams in `photos/illustrated/`, with the real annotated photos in `photos/` kept as a reference
+- [x] Technical diagrams — see above
 - [ ] Confirm exact parts list (brand/type per component)
 - [ ] Final careful review of the whole repo (instructions, wiring, parts list) before treating it as ready to share
 - [x] Choose a licence — CC BY-SA 4.0, see [`LICENSE`](LICENSE)
