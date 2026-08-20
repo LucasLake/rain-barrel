@@ -97,19 +97,32 @@ output:
     frequency: 25000 Hz
 
 # Local cooling control, independent of Home Assistant: check the
-# enclosure temperature every 2 minutes and turn the fan on/off based
-# on a 65°C threshold. Home Assistant only gets a notification about
-# this via the "Regenton too hot" automation, but the cooling itself
-# keeps working even if HA is offline.
+# enclosure temperature every 30s and run the fan with hysteresis
+# instead of a single threshold, so it doesn't rapidly flick on/off
+# right around the trigger point. Turns on above 65°C and then keeps
+# running until it has actually cooled down below 60°C, however long
+# that takes (e.g. longer on a sunny day, per the "Regenton too hot"
+# automation) — never a fixed timer. Home Assistant only gets a
+# notification about overheating via that automation; the cooling
+# itself keeps working even if HA is offline.
 interval:
-  - interval: 120s
+  - interval: 30s
     then:
       - if:
           condition:
-            sensor.in_range:
-              id: internal_temperature_sensor
-              above: 65
+            and:
+              - sensor.in_range:
+                  id: internal_temperature_sensor
+                  above: 65
+              - lambda: 'return !id(fan_).state;'
           then:
             - fan.turn_on: fan_
-          else:
+      - if:
+          condition:
+            and:
+              - sensor.in_range:
+                  id: internal_temperature_sensor
+                  below: 60
+              - lambda: 'return id(fan_).state;'
+          then:
             - fan.turn_off: fan_

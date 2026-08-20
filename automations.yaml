@@ -169,9 +169,11 @@
 
 - alias: Regenton too hot
   description: >-
-    Notification if the ESP32 enclosure goes above 65°C (e.g. from
-    direct sun or a failing fan). Adjust the threshold to suit your own
-    enclosure.
+    Notification if the ESP32 enclosure goes above 70°C (e.g. from
+    direct sun or a failing fan). Set 5°C above the fan's own 65°C
+    on-threshold (see ./esphome/rain-barrel.yaml) so this only fires
+    when the fan isn't keeping up on its own. Adjust the threshold to
+    suit your own enclosure.
   triggers:
   - trigger: temperature.crossed_threshold
     target:
@@ -186,7 +188,7 @@
         type: above
         value:
           active_choice: number
-          number: 65
+          number: 70
           unit_of_measurement: °C
   conditions: []
   actions:
