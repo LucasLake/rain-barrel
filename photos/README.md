@@ -1,7 +1,7 @@
 # Photos
 
-The annotated photos below were the original numbered callout images for
-[../diagram.html](../diagram.html). That page now uses the illustrated
+The annotated photos below were the original numbered callout images
+for [../README.md](../README.md). That page now embeds the illustrated
 versions in [`illustrated/`](illustrated/) instead — these photos are
 kept for reference (real hardware, not a drawing). Drop the following
 files in here (filenames must match exactly):
@@ -35,8 +35,8 @@ No raw original for `ann_float.jpg` was provided.
 
 ## `illustrated/`
 
-Illustrated (drawn, not photographed) versions used in
-[../diagram.html](../diagram.html). Generated from the photos, so the
+Illustrated (drawn, not photographed) versions embedded in
+[../README.md](../README.md). Generated from the photos, so the
 same subjects, but not always the same numbering or grouping — see the
 notes column.
 

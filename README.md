@@ -7,17 +7,11 @@ a pump + solenoid valve to deliver water from the rain barrel — provided
 the barrel is not empty. Includes built-in safety features for leak
 detection, a stuck pump, and overheating.
 
-> **Disclaimer:** these instructions were generated with the help of
-> Claude (Anthropic) after the build was completed, based on the working
-> setup. The author accepts no responsibility for damage, leaks,
+> **Disclaimer:** these instructions and illustrations were generated with the help of
+> Claude and ChatGPT after the build was completed, based on the working
+> setup. The manual is not idiot proof - keep on thinking. The author accepts no responsibility for damage, leaks,
 > electrical problems or other consequences of replicating this project.
 > Always work safely with electricity and water.
-
-> **Status:** this is an extract from a private Home Assistant setup,
-> intended to allow others to replicate it. See [To do](#to-do) for
-> what is still missing (especially: photos of the physical setup —
-> a [parts diagram](diagram.html) with full parts list is already here,
-> photos to follow).
 
 ## How it works
 
@@ -38,28 +32,39 @@ detection, a stuck pump, and overheating.
 
 ## Required hardware
 
+Numbers below (①, ②, …) refer to the callouts in the photos — real
+annotated photos are in [`photos/`](photos/), full-resolution originals
+in [`photos/raw/`](photos/raw/).
+
+![Electronics enclosure interior](photos/illustrated/illustrated_interior.png)
+
+*1 USB 5V supply · 2 Buck converter (20V) · 3 24V power supply · 4 Relay module · 5 ESP32 · 6 Fan*
+
 ### Electronics
 
-| Component | Specifications | Source |
-|---|---|---|
-| ESP32 WROOM-32 | dev board with USB-C | [Amazon](https://www.amazon.nl/dp/B0D4QZ9CKD) |
-| 24V 5A switching power supply | open frame, 120W | [Amazon](https://www.amazon.nl/dp/B0BX2GF5QY) |
-| Buck converter 20V | adjustable DC-DC, 20A/300W | [Amazon](https://www.amazon.nl/dp/B09KC2FNLB) |
-| 5V USB power supply | separate supply for ESP32, isolated from 24V circuit | Any 5V 1A+ USB charger |
-| 2-channel 5V relay module | with optocoupler, active-low | [Amazon](https://www.amazon.nl/dp/B0B41KGSJ7) |
-| ¾" brass flow sensor | YF-S201 variant, ~444 pulses/litre | [Amazon](https://www.amazon.nl/dp/B0DP93BWWJ) |
-| Float switch | dry contact, 3 wires (COM/NO/NC) | [Amazon](https://www.amazon.nl/dp/B09XXHY7C9) |
-| 24V DC NO solenoid valve | ¾" brass, normally open | Heschen 2WK200-20 |
-| 30mm 5V PWM fan | for enclosure cooling | electronics supplier |
-| Weatherproof enclosure | large enough for power supply + electronics | hardware store |
-| Cable glands | for watertight cable entry | hardware store |
-| Wago connectors | for connecting wires | hardware store |
+| # | Component | Specifications | Source |
+|---|---|---|---|
+| 1 | 5V USB power supply | separate supply for ESP32, isolated from 24V circuit | Any 5V 1A+ USB charger |
+| 2 | Buck converter 20V | adjustable DC-DC, 20A/300W | [Amazon](https://www.amazon.nl/dp/B09KC2FNLB) |
+| 3 | 24V 5A switching power supply | open frame, 120W | [Amazon](https://www.amazon.nl/dp/B0BX2GF5QY) |
+| 4 | 2-channel 5V relay module | with optocoupler, active-low | [Amazon](https://www.amazon.nl/dp/B00E0NTPP4) |
+| 5 | ESP32 WROOM-32 | dev board with USB-C | [Amazon](https://www.amazon.nl/dp/B0D4QZ9CKD) |
+| 6, 8 | 30mm 5V PWM fan | for enclosure cooling — 6 = fan itself (interior), 8 = outlet grille with fly mesh (exterior) | electronics supplier |
+| 13 | ¾" brass flow sensor | YF-S201 variant, ~444 pulses/litre | [Amazon](https://www.amazon.nl/dp/B0DP93BWWJ) |
+| 18 | Float switch | dry contact, 3 wires (COM/NO/NC) | [Amazon](https://www.amazon.nl/dp/B09XXHY7C9) |
+| 11 | 24V DC NO solenoid valve Heschen 2WK200-20 | ¾" brass, normally open | [Amazon](https://www.amazon.nl/-/en/Heschen-Electric-Solenoid-2WK200-20-Normally/dp/B072C5ZCXJ) |
+| — | Wago connectors | for connecting wires | hardware store |
+
+![Pump and float switch inside the barrel](photos/illustrated/illustrated_pump_float.png)
+
+*17 Parkside PRPA 20-Li B3 pump — modified to run on fixed 20V DC · 18 Float switch — hangs from barrel rim, signals when barrel is empty*
 
 ### Pump
 
 This project uses a **Parkside PTBP 20-Li** cordless rain barrel pump,
-which normally runs on a 20V lithium battery pack. In this setup the
-battery is replaced by an adjustable buck converter supplying 20V from
+which normally runs on a 20V lithium battery pack. In reality, the battery supplies 19V. 
+In this setup the
+battery is replaced by an adjustable buck converter supplying 19V  / 5A from
 the 24V power supply. The pump cable is connected directly to the buck
 converter output.
 
@@ -68,13 +73,48 @@ it to a fixed power supply you lose the built-in battery protection.
 Use a buck converter with sufficient current capacity (minimum 4A at
 20V).
 
+![Plumbing overview](photos/illustrated/illustrated_plumbing.png)
+
+*10 Wall tap · 11 Solenoid valve · 12 Swivel couplings (×2) · 13 Flow sensor · 14 Non-return valve · 15 Manifold*
+
 ### Plumbing
 
-| Component | Specifications | Source |
-|---|---|---|
-| ¾" brass Y-piece / manifold | 2 inputs, 1 output | [Bol.com](https://www.bol.com/nl/nl/p/verdeler-splitter-messing-2-aftakkingen-3-4/9300000044146766/) |
-| Garden hose non-return valve | in pump outlet, prevents backflow | Gardena/hardware store |
-| ¾" swivel coupling M×F | for mounting without rotation | Amazon |
+| # | Component | Specifications | Source |
+|---|---|---|---|
+| 10 | Wall tap | existing mains water supply | — |
+| 12 | ¾" swivel coupling M×F (×2) | between tap–valve and valve–manifold, allows mounting without rotating pipe | [Amazon](https://www.amazon.nl/dp/B0CPPVSBLK]) |
+| 14 | Garden hose non-return valve | in pump outlet, prevents backflow | [Amazon](https://www.amazon.nl/Terugslagklep-van-Kunststof-voor-Tuinslang/dp/B099F2H24F) |
+| 15 | ¾" brass Y-piece / manifold (Bradas) | 2 inputs, 1 output, manual shutoff per branch | [Bol.com](https://www.bol.com/nl/nl/p/verdeler-splitter-messing-2-aftakkingen-3-4/9300000044146766/) |
+
+![Right side: pump/float glands and fan outlet](photos/illustrated/illustrated_side_right.png)
+
+*7 Pump cable gland · 8 Fan outlet with fly mesh · 9 Float switch cable gland*
+
+![Left side and bottom: mains/sensor/valve glands and ventilation inlets](photos/illustrated/illustrated_side_left.png)
+
+*19 Ventilation air inlet with fly mesh (×2, bottom) · 20 230V mains entry · 21 Flow sensor cable · 22 Valve cable*
+
+### Enclosure & installation
+
+| # | Component | Specifications | Source |
+|---|---|---|---|
+| — | Weatherproof enclosure | large enough for PSU + electronics. Ventilation holes mean it's no longer fully IP-rated — condensation is the main risk | [Amazon](https://www.amazon.nl/dp/B0983N1KGF) |
+| 7 | Cable gland — pump | watertight entry for 20V pump power cable | [Amazon](https://www.amazon.nl/dp/B07QTG9G3W) |
+| 9 | Cable gland — float switch | watertight entry for float switch wiring | [Amazon](https://www.amazon.nl/dp/B07QTG9G3W) |
+| 20 | Cable gland — 230V mains | watertight entry for mains power (IEC C13 printer cable, cut and wired directly) | [Amazon](https://www.amazon.nl/dp/B07QTG9G3W) |
+| 21 | Cable gland — flow sensor | watertight entry for flow sensor signal cable | [Amazon](https://www.amazon.nl/dp/B07QTG9G3W) |
+| 22 | Cable gland — valve | watertight entry for solenoid valve cable | [Amazon](https://www.amazon.nl/dp/B07QTG9G3W) |
+| 19 | Ventilation inlet with fly mesh | bottom of enclosure, plastic cover cap prevents direct splash ingress | hardware store |
+| — | Mains cable (IEC C13 printer cable) | 3-wire with earth, outdoor rated, cut and wired directly to 24V supply | repurposed |
+
+### Sundries & tools
+
+Wago 221 connectors (assorted) · terminal blocks (schroefklemmenblokken)
+· PCB standoffs + screws (assortment box) · cable ferrules + crimping
+tool · jumper cables (FF, MF, MM) + dupont connectors + crimping tool ·
+loose wire (e.g. speaker cable) · 230V wire for USB supply connection ·
+soldering iron · multimeter · heat shrink tubing · cable ties · PTFE
+tape · hot glue gun · step drill bit (for ventilation holes)
 
 ## Wiring diagram
 
@@ -107,8 +147,7 @@ Use a buck converter with sufficient current capacity (minimum 4A at
                                   └── GPIO23 → Fan blue (PWM)
 ```
 
-**Important:** the relay module's BGND must be connected to 24V GND
-(common ground). Use a **separate 5V USB power supply** for the ESP32
+**Important:** Use a **separate 5V USB power supply** for the ESP32
 — not the 24V supply via a buck converter. A pump draws a large inrush
 current on startup that temporarily overloads the 24V supply; if the
 ESP32 is on the same supply it will reset.
@@ -217,7 +256,7 @@ this, but may vary between sensors — test with a known volume of water.
 
 ## To do
 
-- [x] Illustrations — [`diagram.html`](diagram.html) now uses illustrated diagrams in `photos/illustrated/`, with the real annotated photos in `photos/` kept as a reference
+- [x] Illustrations — illustrated diagrams from `photos/illustrated/` are embedded above, with the real annotated photos in `photos/` kept as a reference
 - [x] Technical diagrams — see above
 - [ ] Confirm exact parts list (brand/type per component)
 - [ ] Final careful review of the whole repo (instructions, wiring, parts list) before treating it as ready to share
