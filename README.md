@@ -36,11 +36,11 @@ Numbers below (①, ②, …) refer to the callouts in the photos — real
 annotated photos are in [`photos/`](photos/), full-resolution originals
 in [`photos/raw/`](photos/raw/).
 
+### Electronics
+
 ![Electronics enclosure interior](photos/illustrated/illustrated_interior.png)
 
 *1 USB 5V supply · 2 Buck converter (20V) · 3 24V power supply · 4 Relay module · 5 ESP32 · 6 Fan*
-
-### Electronics
 
 | # | Component | Specifications | Source |
 |---|---|---|---|
@@ -49,18 +49,24 @@ in [`photos/raw/`](photos/raw/).
 | 3 | 24V 5A switching power supply | open frame, 120W | [Amazon](https://www.amazon.nl/dp/B0BX2GF5QY) |
 | 4 | 2-channel 5V relay module | with optocoupler, active-low | [Amazon](https://www.amazon.nl/dp/B00E0NTPP4) |
 | 5 | ESP32 WROOM-32 | dev board with USB-C | [Amazon](https://www.amazon.nl/dp/B0D4QZ9CKD) |
-| 6, 8 | 30mm 5V PWM fan | for enclosure cooling — 6 = fan itself (interior), 8 = outlet grille with fly mesh (exterior) | electronics supplier |
-| 13 | ¾" brass flow sensor | YF-S201 variant, ~444 pulses/litre | [Amazon](https://www.amazon.nl/dp/B0DP93BWWJ) |
-| 18 | Float switch | dry contact, 3 wires (COM/NO/NC) | [Amazon](https://www.amazon.nl/dp/B09XXHY7C9) |
+| 6 | 30mm 5V PWM fan | for enclosure cooling — fan itself (interior) | electronics supplier |
+
+### Plumbing
+
+![Plumbing overview](photos/illustrated/illustrated_plumbing.png)
+
+*10 Wall tap · 11 Solenoid valve · 12 Swivel couplings (×2) · 13 Flow sensor · 14 Non-return valve · 15 Manifold*
+
+| # | Component | Specifications | Source |
+|---|---|---|---|
+| 10 | Wall tap | existing mains water supply | — |
 | 11 | 24V DC NO solenoid valve Heschen 2WK200-20 | ¾" brass, normally open | [Amazon](https://www.amazon.nl/-/en/Heschen-Electric-Solenoid-2WK200-20-Normally/dp/B072C5ZCXJ) |
-| — | Wago connectors | for connecting wires | hardware store |
+| 12 | ¾" swivel coupling M×F (×2) | between tap–valve and valve–manifold, allows mounting without rotating pipe | [Amazon](https://www.amazon.nl/dp/B0CPPVSBLK]) |
+| 13 | ¾" brass flow sensor | YF-S201 variant, ~444 pulses/litre | [Amazon](https://www.amazon.nl/dp/B0DP93BWWJ) |
+| 14 | Garden hose non-return valve | in pump outlet, prevents backflow | [Amazon](https://www.amazon.nl/Terugslagklep-van-Kunststof-voor-Tuinslang/dp/B099F2H24F) |
+| 15 | ¾" brass Y-piece / manifold (Bradas) | 2 inputs, 1 output, manual shutoff per branch | [Bol.com](https://www.bol.com/nl/nl/p/verdeler-splitter-messing-2-aftakkingen-3-4/9300000044146766/) |
 
-![Pump and float switch inside the barrel](photos/illustrated/illustrated_pump_float.png)
-
-*17 Parkside PRPA 20-Li B3 pump — modified to run on fixed 20V DC · 18 Float switch — hangs from barrel rim, signals when barrel is empty*
-
-### Pump
-
+### Rain barrel
 This project uses a **Parkside PTBP 20-Li** cordless rain barrel pump,
 which normally runs on a 20V lithium battery pack. In reality, the battery supplies 19V. 
 In this setup the
@@ -73,18 +79,16 @@ it to a fixed power supply you lose the built-in battery protection.
 Use a buck converter with sufficient current capacity (minimum 4A at
 20V).
 
-![Plumbing overview](photos/illustrated/illustrated_plumbing.png)
+![Pump and float switch inside the barrel](photos/illustrated/illustrated_pump_float.png)
 
-*10 Wall tap · 11 Solenoid valve · 12 Swivel couplings (×2) · 13 Flow sensor · 14 Non-return valve · 15 Manifold*
-
-### Plumbing
+*17 Parkside PRPA 20-Li B3 pump — modified to run on fixed 20V DC · 18 Float switch — hangs from barrel rim, signals when barrel is empty*
 
 | # | Component | Specifications | Source |
 |---|---|---|---|
-| 10 | Wall tap | existing mains water supply | — |
-| 12 | ¾" swivel coupling M×F (×2) | between tap–valve and valve–manifold, allows mounting without rotating pipe | [Amazon](https://www.amazon.nl/dp/B0CPPVSBLK]) |
-| 14 | Garden hose non-return valve | in pump outlet, prevents backflow | [Amazon](https://www.amazon.nl/Terugslagklep-van-Kunststof-voor-Tuinslang/dp/B099F2H24F) |
-| 15 | ¾" brass Y-piece / manifold (Bradas) | 2 inputs, 1 output, manual shutoff per branch | [Bol.com](https://www.bol.com/nl/nl/p/verdeler-splitter-messing-2-aftakkingen-3-4/9300000044146766/) |
+| 17 | Parkside PRPA 20-Li B3 pump | 20V cordless rain barrel pump, modified for fixed 20V DC via buck converter | Lidl |
+| 18 | Float switch | dry contact, 3 wires (COM/NO/NC) | [Amazon](https://www.amazon.nl/dp/B09XXHY7C9) |
+
+### Enclosure & installation
 
 ![Right side: pump/float glands and fan outlet](photos/illustrated/illustrated_side_right.png)
 
@@ -94,17 +98,16 @@ Use a buck converter with sufficient current capacity (minimum 4A at
 
 *19 Ventilation air inlet with fly mesh (×2, bottom) · 20 230V mains entry · 21 Flow sensor cable · 22 Valve cable*
 
-### Enclosure & installation
-
 | # | Component | Specifications | Source |
 |---|---|---|---|
 | — | Weatherproof enclosure | large enough for PSU + electronics. Ventilation holes mean it's no longer fully IP-rated — condensation is the main risk | [Amazon](https://www.amazon.nl/dp/B0983N1KGF) |
 | 7 | Cable gland — pump | watertight entry for 20V pump power cable | [Amazon](https://www.amazon.nl/dp/B07QTG9G3W) |
+| 8 | Fan outlet & fly mesh | unfortunately not water proof | Hardware store |
 | 9 | Cable gland — float switch | watertight entry for float switch wiring | [Amazon](https://www.amazon.nl/dp/B07QTG9G3W) |
+| 19 | Ventilation inlet with fly mesh | bottom of enclosure, plastic cover cap prevents direct splash ingress, unfortunately not water proof | hardware store |
 | 20 | Cable gland — 230V mains | watertight entry for mains power (IEC C13 printer cable, cut and wired directly) | [Amazon](https://www.amazon.nl/dp/B07QTG9G3W) |
 | 21 | Cable gland — flow sensor | watertight entry for flow sensor signal cable | [Amazon](https://www.amazon.nl/dp/B07QTG9G3W) |
 | 22 | Cable gland — valve | watertight entry for solenoid valve cable | [Amazon](https://www.amazon.nl/dp/B07QTG9G3W) |
-| 19 | Ventilation inlet with fly mesh | bottom of enclosure, plastic cover cap prevents direct splash ingress | hardware store |
 | — | Mains cable (IEC C13 printer cable) | 3-wire with earth, outdoor rated, cut and wired directly to 24V supply | repurposed |
 
 ### Sundries & tools
@@ -173,7 +176,7 @@ solenoid valve. When the pump takes over, the solenoid valve closes the
 tap. The non-return valve in the pump outlet prevents tap water from
 flowing back into the barrel when the pump is off.
 
-## ESPHome entities (from `esphome/regenton.yaml`)
+## ESPHome entities (from `esphome/rain-barrel.yaml`)
 
 | Component | Role | GPIO | HA domain |
 |---|---|---|---|
@@ -190,8 +193,8 @@ flowing back into the barrel when the pump is off.
 1. **Flash ESPHome firmware**: copy
    [`esphome/secrets.yaml.example`](esphome/secrets.yaml.example) to
    `esphome/secrets.yaml` and fill in your WiFi credentials. Then flash
-   [`esphome/regenton.yaml`](esphome/regenton.yaml) to your ESP32 via
-   USB using `esphome run regenton.yaml --device COMx` (Windows) or
+   [`esphome/rain-barrel.yaml`](esphome/rain-barrel.yaml) to your ESP32 via
+   USB using `esphome run rain-barrel.yaml --device COMx` (Windows) or
    via the ESPHome add-on in Home Assistant. After the first USB flash,
    further updates work via OTA (WiFi).
 2. Add the device to Home Assistant via the ESPHome integration
@@ -254,11 +257,3 @@ locally on the ESP32 and does not depend on Home Assistant.
 The calibration value in ESPHome (`multiply: 0.00225`) is tuned for
 this, but may vary between sensors — test with a known volume of water.
 
-## To do
-
-- [x] Illustrations — illustrated diagrams from `photos/illustrated/` are embedded above, with the real annotated photos in `photos/` kept as a reference
-- [x] Technical diagrams — see above
-- [ ] Confirm exact parts list (brand/type per component)
-- [ ] Final careful review of the whole repo (instructions, wiring, parts list) before treating it as ready to share
-- [x] Choose a licence — CC BY-SA 4.0, see [`LICENSE`](LICENSE)
-- [x] Move to the final GitHub repository — [LucasLake/rain-barrel](https://github.com/LucasLake/rain-barrel)
